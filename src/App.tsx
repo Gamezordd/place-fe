@@ -12,22 +12,22 @@ function App() {
   const [showLogin, setShowLogin] = useState(true);
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+    <div style={{ backgroundColor: '#1A202C', color: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
       <SocketManager />
-      <h1 className="text-4xl font-bold mb-8">Reddit Place Clone</h1>
+      <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>Reddit Place Clone</h1>
       {username && <Toolbar />}
-      <div className={`relative ${!username ? 'blur-sm' : ''}`} style={{ paddingTop: '60px' }}>
+      <div style={{ position: 'relative', paddingTop: '60px', filter: !username ? 'blur(4px)' : 'none', width: '100%', display: 'flex', justifyContent: 'center' }}>
         <Canvas />
       </div>
       {!username && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-800 p-8 rounded-lg">
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#2D3748', padding: '2rem', borderRadius: '0.5rem' }}>
             {showLogin ? (
               <Login />
             ) : (
               <Signup />
             )}
-            <button onClick={() => setShowLogin(!showLogin)} className="mt-4 text-sm text-blue-400 hover:underline">
+            <button onClick={() => setShowLogin(!showLogin)} style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#63B3ED', textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none' }}>
               {showLogin ? 'Don\'t have an account? Signup' : 'Already have an account? Login'}
             </button>
           </div>
