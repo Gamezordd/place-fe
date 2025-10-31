@@ -19,6 +19,9 @@ interface StoreState {
   setCooldown: (cooldown: number) => void;
   setSelectedColor: (color: string) => void;
   updatePixel: (x: number, y: number, color: string, timestamp: number) => void;
+  logout: () => void;
+  isShaking: boolean;
+  setIsShaking: (isShaking: boolean) => void;
 }
 
 const useStore = create<StoreState>((set) => ({
@@ -37,6 +40,9 @@ const useStore = create<StoreState>((set) => ({
         [`${x}:${y}`]: { color, timestamp },
       },
     })),
+  logout: () => set({ username: null }),
+  isShaking: false,
+  setIsShaking: (isShaking) => set({ isShaking }),
 }));
 
 export default useStore;

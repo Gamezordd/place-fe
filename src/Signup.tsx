@@ -23,23 +23,25 @@ const Signup = () => {
   }, [username, setStoreUsername]);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Signup</h2>
-      <div className="flex items-center space-x-4">
+    <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
+      <h1 className="text-3xl font-bold mb-2 text-center">Join the Canvas</h1>
+      <p className="text-gray-400 mb-6 text-center">Create your account to start placing pixels and collaborating with others.</p>
+      <div className="flex flex-col space-y-4">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="px-4 py-2 rounded-md bg-gray-700 text-white"
+          className="px-4 py-3 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
         />
         <button
           onClick={handleSignup}
-          className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700"
+          className="px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-200"
         >
-          Signup
+          Create Account
         </button>
       </div>
+      <p className="text-xs text-gray-500 mt-4 text-center">Each user has a 1-minute cooldown between placing pixels.</p>
     </div>
   );
 };

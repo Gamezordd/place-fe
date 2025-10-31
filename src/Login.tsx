@@ -24,7 +24,8 @@ const Login = () => {
 
   return (
     <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      <h1 className="text-3xl font-bold mb-2 text-center">Reddit Place Clone</h1>
+      <p className="text-gray-400 mb-6 text-center">Collaborate with others to create a masterpiece on a shared canvas.</p>
       <div className="flex flex-col space-y-4">
         <input
           type="text"
@@ -40,6 +41,7 @@ const Login = () => {
           Login
         </button>
       </div>
+      <p className="text-xs text-gray-500 mt-4 text-center">Each user has a 1-minute cooldown between placing pixels.</p>
     </div>
   );
 };
