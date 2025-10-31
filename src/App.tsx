@@ -18,12 +18,12 @@ function App() {
       <Background />
       <SocketManager />
       {username && <Toolbar />}
-      <div className={`relative w-full flex justify-center ${!username ? 'filter blur-sm' : ''}`}>
+      <div className={`relative w-full flex justify-center items-center `}>
         <Canvas />
       </div>
       {!username && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-700 p-8 rounded-lg">
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-lg">
+          <div className="bg-gray-700/50 p-8 rounded-lg">
             {showLogin ? (
               <Login />
             ) : (
