@@ -2,7 +2,7 @@ import Background from './Background';
 import './App.css';
 import { useState } from 'react';
 import { SocketManager } from './SocketManager';
-import Canvas from './Canvas';
+import KonvaCanvas from './KonvaCanvas';
 import Login from './Login';
 import Signup from './Signup';
 import useStore from './store';
@@ -19,7 +19,7 @@ function App() {
       <SocketManager />
       {username && <Toolbar />}
       <div className={`relative w-full flex justify-center items-center `}>
-        <Canvas />
+        <KonvaCanvas />
       </div>
       {!username && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-lg">

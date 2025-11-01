@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import io from 'socket.io-client';
 import useStore from './store';
 
@@ -8,12 +8,13 @@ const socket = io('localhost:3000'); // Replace with your backend URL
 let cooldownInterval: number | null = null;
 
 const SocketManager = () => {
-  const { setCanvas, updatePixel, setCooldown } = useStore();
+  const { setCanvas, updatePixel, setCooldown, setInitialized } = useStore();
 
   useEffect(() => {
     // Define listeners outside to avoid re-creating them on every render
     const handleInitialCanvas = (canvas: any) => {
       setCanvas(canvas);
+      setInitialized(true);
     };
 
     const handleUpdatePixel = (data: { x: number; y: number; color: string; timestamp: number }) => {
@@ -27,7 +28,7 @@ const SocketManager = () => {
 
     const handleCooldown = (cooldown: number) => {
       console.log("current cooldown:", cooldown);
-      useStore.getState().setCooldown(cooldown);
+      setCooldown(cooldown);
       
       // Clear any existing interval
       if (cooldownInterval) {
@@ -40,9 +41,9 @@ const SocketManager = () => {
           if (currentCooldown <= 1) {
             clearInterval(cooldownInterval!); // Clear the interval when cooldown ends
             cooldownInterval = null;
-            useStore.getState().setCooldown(0);
+            setCooldown(0);
           } else {
-            useStore.getState().setCooldown(currentCooldown - 1);
+            setCooldown(currentCooldown - 1);
           }
         }, 1000);
       }

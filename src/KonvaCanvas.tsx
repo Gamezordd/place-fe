@@ -1,0 +1,127 @@
+import { Stage, Layer, Rect, Group } from 'react-konva';
+import useStore from './store';
+import { socket } from './SocketManager';
+import { useEffect, useRef, useState } from 'react';
+import { Layer as KonvaLayer } from 'konva/lib/Layer';
+import type { KonvaEventObject } from 'konva/lib/Node';
+
+const CANVAS_SIZE = 50;
+
+const KonvaCanvas = () => {
+    const { canvas, username, selectedColor, updatePixel, cooldown, setIsShaking, initialized } = useStore();
+    const layerRef = useRef<KonvaLayer>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        if (containerRef.current) {
+            const resizeObserver = new ResizeObserver(() => {
+                if (containerRef.current) {
+                    setDimensions({
+                        width: containerRef.current.offsetWidth - 16,
+                        height: containerRef.current.offsetHeight - 16,
+                    });
+                }
+            });
+            resizeObserver.observe(containerRef.current);
+            return () => resizeObserver.disconnect();
+        }
+    }, []);
+
+
+    const pixelSize = Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
+
+    useEffect(() => {
+        if (layerRef.current && !initialized) {
+            const layer = layerRef.current;
+            for (let i = 0; i < CANVAS_SIZE * CANVAS_SIZE; i++) {
+                const x = i % CANVAS_SIZE;
+                const y = Math.floor(i / CANVAS_SIZE);
+                const pixel = canvas[`${x}:${y}`];
+                const rect = layer.findOne(`#pixel-${x}-${y}`) as any;
+                if (rect) {
+                    rect.fill(pixel ? pixel.color : '#FFFFFF');
+                }
+            }
+        }
+    }, [initialized, canvas]);
+
+
+    /**
+     * Handle a click on a pixel.
+     * If the user is not logged in, show an alert.
+     * If the cooldown is not over, shake the pixel and then restore its color.
+     * If the cooldown is over, send a draw_pixel event to the server and update the pixel's color.
+     * @param {KonvaEventObject<MouseEvent>} e - The event object.
+     */
+    const handlePixelClick = (e: KonvaEventObject<MouseEvent>) => {
+        const rect = e.target as any;
+        const x = rect.x() / pixelSize;
+        const y = rect.y() / pixelSize;
+
+        if (!username) {
+            alert('Please log in to draw.');
+            return;
+        }
+
+        if (cooldown > 0) {
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+
+            const originalColor = canvas[`${x}:${y}`]?.color || '#FFFFFF';
+            rect.fill(selectedColor);
+
+            setTimeout(() => {
+                rect.fill(originalColor);
+            }, 100);
+            return;
+        }
+
+        const timestamp = Date.now();
+
+        socket.emit('draw_pixel', { x, y, color: selectedColor, timestamp });
+        updatePixel(x, y, selectedColor, timestamp);
+    };
+
+    return (
+        <div
+            ref={containerRef}
+            className="w-full m-2 max-w-[80vh] relative max-h-[80vh] border-2 border-gray-700 box-border p-1.5 aspect-square rounded-lg shadow-2xl"
+        >
+            <Stage width={dimensions.width} height={dimensions.height} className='w-full h-full'>
+                <Layer ref={layerRef}>
+                    <Rect
+                        x={0}
+                        y={0}
+                        fill="#FFFFFF"
+                    />
+                    <Group>
+                        {Array.from({ length: CANVAS_SIZE * CANVAS_SIZE }).map((_, index) => {
+                            const x = index % CANVAS_SIZE;
+                            const y = Math.floor(index / CANVAS_SIZE);
+                            const pixel = canvas[`${x}:${y}`];
+
+                            return (
+                                <Rect
+                                    key={index}
+                                    id={`pixel-${x}-${y}`}
+                                    x={x * pixelSize}
+                                    y={y * pixelSize}
+                                    width={pixelSize}
+                                    height={pixelSize}
+                                    fill={pixel ? pixel.color : '#FFFFFF'}
+                                    onClick={handlePixelClick}
+                                    stroke="#CCCCCC"
+                                    strokeWidth={0.5}
+
+                                />
+                            );
+                        })}
+                    </Group>
+                </Layer>
+            </Stage>
+        </div>
+    );
+};
+
+export default KonvaCanvas;
