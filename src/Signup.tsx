@@ -10,7 +10,7 @@ const Signup = () => {
   const { setUsername: setStoreUsername } = useStore();
 
   const handleSignup = () => {
-    socket.emit("signup", username);
+    socket.emit(EVENT_NAMES.SIGNUP, username);
   };
 
   useEffect(() => {

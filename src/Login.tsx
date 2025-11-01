@@ -10,7 +10,7 @@ const Login = () => {
   const { setUsername: setStoreUsername } = useStore();
 
   const handleLogin = () => {
-    socket.emit("login", username);
+    socket.emit(EVENT_NAMES.LOGIN, username);
   };
 
   useEffect(() => {
