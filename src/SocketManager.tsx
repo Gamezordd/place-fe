@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import io from 'socket.io-client';
 import useStore from './store';
+import { EVENT_NAMES } from './eventConstants';
 
 const socket = io('localhost:3000'); // Replace with your backend URL
 
@@ -57,19 +58,19 @@ const SocketManager = () => {
       setIsConnected(false);
     };
 
-    socket.on('connect', handleConnect);
-    socket.on('connect_error', handleConnectError);
-    socket.on('initial_canvas', handleInitialCanvas);
-    socket.on('update_pixel', handleUpdatePixel);
-    socket.on('login_success', handleLoginSuccess);
-    socket.on('cooldown', handleCooldown);
+    socket.on(EVENT_NAMES.CONNECT, handleConnect);
+    socket.on(EVENT_NAMES.CONNECT_ERROR, handleConnectError);
+    socket.on(EVENT_NAMES.INITIAL_CANVAS, handleInitialCanvas);
+    socket.on(EVENT_NAMES.UPDATE_PIXEL, handleUpdatePixel);
+    socket.on(EVENT_NAMES.LOGIN_SUCCESS, handleLoginSuccess);
+    socket.on(EVENT_NAMES.COOLDOWN, handleCooldown);
 
     return () => {
-      socket.off('connect', handleConnect);
-      socket.off('connect_error', handleConnectError);
-      socket.off('initial_canvas', handleInitialCanvas);
-      socket.off('update_pixel', handleUpdatePixel);
-      socket.off('cooldown', handleCooldown);
+      socket.off(EVENT_NAMES.CONNECT, handleConnect);
+      socket.off(EVENT_NAMES.CONNECT_ERROR, handleConnectError);
+      socket.off(EVENT_NAMES.INITIAL_CANVAS, handleInitialCanvas);
+      socket.off(EVENT_NAMES.UPDATE_PIXEL, handleUpdatePixel);
+      socket.off(EVENT_NAMES.COOLDOWN, handleCooldown);
       if (cooldownInterval) {
         clearInterval(cooldownInterval);
         cooldownInterval = null;

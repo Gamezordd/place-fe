@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { socket } from './SocketManager';
 import useStore from './store';
 import InputFieldWithErrors from './Components/InputFieldWithErrors';
+import { EVENT_NAMES } from './eventConstants';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -21,12 +22,12 @@ const Login = () => {
       setError(message);
     };
 
-    socket.on('login_success', handleLoginSuccess);
-    socket.on('login_failed', handleLoginError);
+    socket.on(EVENT_NAMES.LOGIN_SUCCESS, handleLoginSuccess);
+    socket.on(EVENT_NAMES.LOGIN_FAILED, handleLoginError);
 
     return () => {
-      socket.off('login_success', handleLoginSuccess);
-      socket.off('login_failed', handleLoginError);
+      socket.off(EVENT_NAMES.LOGIN_SUCCESS, handleLoginSuccess);
+      socket.off(EVENT_NAMES.LOGIN_FAILED, handleLoginError);
     };
   }, [username, setStoreUsername]);
 
