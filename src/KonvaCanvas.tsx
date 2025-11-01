@@ -4,6 +4,8 @@ import { socket } from './SocketManager';
 import { useEffect, useRef, useState } from 'react';
 import { Layer as KonvaLayer } from 'konva/lib/Layer';
 import type { KonvaEventObject } from 'konva/lib/Node';
+import { Stage as StageType } from 'konva/lib/Stage';
+import type { Shape } from 'konva/lib/Shape';
 
 const CANVAS_SIZE = 50;
 
@@ -12,6 +14,8 @@ const KonvaCanvas = () => {
     const layerRef = useRef<KonvaLayer>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 });
+    const lastDist = useRef(0);
 
     useEffect(() => {
         if (containerRef.current) {
@@ -38,7 +42,7 @@ const KonvaCanvas = () => {
                 const x = i % CANVAS_SIZE;
                 const y = Math.floor(i / CANVAS_SIZE);
                 const pixel = canvas[`${x}:${y}`];
-                const rect = layer.findOne(`#pixel-${x}-${y}`) as any;
+                const rect = layer.findOne(`#pixel-${x}-${y}`) as Shape;
                 if (rect) {
                     rect.fill(pixel ? pixel.color : '#FFFFFF');
                 }
@@ -46,6 +50,89 @@ const KonvaCanvas = () => {
         }
     }, [initialized, canvas]);
 
+
+    const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
+        e.evt.preventDefault();
+
+        const scaleBy = 1.1;
+        const stage = e.target.getStage() as StageType;
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        if (!pointer) return;
+
+        const mousePointTo = {
+            x: (pointer.x - stage.x()) / oldScale,
+            y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+
+        setStage({
+            scale: newScale,
+            x: pointer.x - mousePointTo.x * newScale,
+            y: pointer.y - mousePointTo.y * newScale,
+        });
+    };
+
+    const handleTouch = (e: KonvaEventObject<TouchEvent>) => {
+        e.evt.preventDefault();
+        const touch1 = e.evt.touches[0];
+        const touch2 = e.evt.touches[1];
+        const stage = e.target.getStage() as StageType;
+
+        if (touch1 && touch2) {
+            if (stage.isDragging()) {
+                stage.stopDrag();
+            }
+
+            const p1 = {
+                x: touch1.clientX,
+                y: touch1.clientY,
+            };
+            const p2 = {
+                x: touch2.clientX,
+                y: touch2.clientY,
+            };
+
+            if (!lastDist.current) {
+                lastDist.current = getDistance(p1, p2);
+            }
+
+            const dist = getDistance(p1, p2);
+            const scale = (stage.scaleX() * dist) / lastDist.current;
+            lastDist.current = dist;
+
+            const center = {
+                x: (p1.x + p2.x) / 2,
+                y: (p1.y + p2.y) / 2,
+            };
+
+            const pointTo = {
+                x: (center.x - stage.x()) / stage.scaleX(),
+                y: (center.y - stage.y()) / stage.scaleX(),
+            };
+
+            setStage({
+                scale,
+                x: center.x - pointTo.x * scale,
+                y: center.y - pointTo.y * scale,
+            });
+
+        } else if (touch1) {
+            if (!stage.isDragging()) {
+                stage.startDrag();
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        lastDist.current = 0;
+    };
+
+    const getDistance = (p1: { x: number; y: number }, p2: { x: number; y: number }) => {
+        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+    };
 
     /**
      * Handle a click on a pixel.
@@ -55,7 +142,7 @@ const KonvaCanvas = () => {
      * @param {KonvaEventObject<MouseEvent>} e - The event object.
      */
     const handlePixelClick = (e: KonvaEventObject<MouseEvent>) => {
-        const rect = e.target as any;
+        const rect = e.target as Shape;
         const x = rect.x() / pixelSize;
         const y = rect.y() / pixelSize;
 
@@ -88,7 +175,18 @@ const KonvaCanvas = () => {
             ref={containerRef}
             className="w-full m-2 max-w-[80vh] relative max-h-[80vh] border-2 border-gray-700 box-border p-1.5 aspect-square rounded-lg shadow-2xl"
         >
-            <Stage width={dimensions.width} height={dimensions.height} className='w-full h-full'>
+            <Stage 
+                width={dimensions.width} 
+                height={dimensions.height}
+                onWheel={handleWheel}
+                onTouchMove={handleTouch}
+                onTouchEnd={handleTouchEnd}
+                scaleX={stage.scale}
+                scaleY={stage.scale}
+                x={stage.x}
+                y={stage.y}
+                draggable
+            >
                 <Layer ref={layerRef}>
                     <Rect
                         x={0}
