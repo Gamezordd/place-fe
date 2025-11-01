@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface InputFieldWithErrorsProps {
   placeholder: string;
@@ -15,7 +15,7 @@ const InputFieldWithErrors: React.FC<InputFieldWithErrorsProps> = ({
   error,
   onKeyDown,
 }) => {
-  const inputClasses = `px-4 py-3 rounded-md bg-gray-700 text-white border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ${error ? 'border-red-500' : 'border-gray-600'}`;
+  const inputClasses = `px-4 py-3 rounded-md bg-gray-700 text-white border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ${error ? "border-red-500" : "border-gray-600"}`;
 
   return (
     <div className="flex flex-col w-full">

@@ -7,7 +7,8 @@
     "dev": "vite --host=0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
@@ -32,6 +33,7 @@
     "globals": "^16.4.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",

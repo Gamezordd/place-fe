@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { socket } from './SocketManager';
-import useStore from './store';
-import InputFieldWithErrors from './Components/InputFieldWithErrors';
-import { EVENT_NAMES } from './eventConstants';
+import { useState, useEffect } from "react";
+import { socket } from "./SocketManager";
+import useStore from "./store";
+import InputFieldWithErrors from "./Components/InputFieldWithErrors";
+import { EVENT_NAMES } from "./eventConstants";
 
 const Signup = () => {
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
   const { setUsername: setStoreUsername } = useStore();
 
   const handleSignup = () => {
-    socket.emit('signup', username);
+    socket.emit("signup", username);
   };
 
   useEffect(() => {
@@ -34,14 +34,17 @@ const Signup = () => {
   return (
     <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
       <h1 className="text-3xl font-bold mb-2 text-center">Join the Canvas</h1>
-      <p className="text-gray-400 mb-6 text-center">Create your account to start placing pixels and collaborating with others.</p>
+      <p className="text-gray-400 mb-6 text-center">
+        Create your account to start placing pixels and collaborating with
+        others.
+      </p>
       <div className="flex flex-col space-y-4">
         <InputFieldWithErrors
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               handleSignup();
             }
           }}
@@ -54,7 +57,9 @@ const Signup = () => {
           Create Account
         </button>
       </div>
-      <p className="text-xs text-gray-500 mt-4 text-center">Each user has a 1-minute cooldown between placing pixels.</p>
+      <p className="text-xs text-gray-500 mt-4 text-center">
+        Each user has a 1-minute cooldown between placing pixels.
+      </p>
     </div>
   );
 };

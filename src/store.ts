@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface Pixel {
   color: string;
@@ -32,7 +32,7 @@ const useStore = create<StoreState>((set) => ({
   canvas: {},
   username: null,
   cooldown: 0,
-  selectedColor: '#FFFFFF',
+  selectedColor: "#FFFFFF",
   initialized: false,
   isConnected: true,
   setCanvas: (canvas) => set({ canvas }),

@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { socket } from './SocketManager';
-import useStore from './store';
-import InputFieldWithErrors from './Components/InputFieldWithErrors';
-import { EVENT_NAMES } from './eventConstants';
+import { useState, useEffect } from "react";
+import { socket } from "./SocketManager";
+import useStore from "./store";
+import InputFieldWithErrors from "./Components/InputFieldWithErrors";
+import { EVENT_NAMES } from "./eventConstants";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
   const { setUsername: setStoreUsername } = useStore();
 
   const handleLogin = () => {
-    socket.emit('login', username);
+    socket.emit("login", username);
   };
 
   useEffect(() => {
@@ -33,15 +33,19 @@ const Login = () => {
 
   return (
     <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h1 className="text-3xl font-bold mb-2 text-center">Reddit Place Clone</h1>
-      <p className="text-gray-400 mb-6 text-center">Collaborate with others to create a masterpiece on a shared canvas.</p>
+      <h1 className="text-3xl font-bold mb-2 text-center">
+        Reddit Place Clone
+      </h1>
+      <p className="text-gray-400 mb-6 text-center">
+        Collaborate with others to create a masterpiece on a shared canvas.
+      </p>
       <div className="flex flex-col space-y-4">
         <InputFieldWithErrors
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               handleLogin();
             }
           }}
@@ -54,7 +58,9 @@ const Login = () => {
           Login
         </button>
       </div>
-      <p className="text-xs text-gray-500 mt-4 text-center">Each user has a 1-minute cooldown between placing pixels.</p>
+      <p className="text-xs text-gray-500 mt-4 text-center">
+        Each user has a 1-minute cooldown between placing pixels.
+      </p>
     </div>
   );
 };
