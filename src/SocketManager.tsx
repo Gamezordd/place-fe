@@ -8,7 +8,7 @@ const socket = io('localhost:3000'); // Replace with your backend URL
 let cooldownInterval: number | null = null;
 
 const SocketManager = () => {
-  const { setCanvas, updatePixel, setCooldown, setInitialized } = useStore();
+  const { setCanvas, updatePixel, setCooldown, setInitialized, setIsConnected } = useStore();
 
   useEffect(() => {
     // Define listeners outside to avoid re-creating them on every render
@@ -49,16 +49,26 @@ const SocketManager = () => {
       }
     };
 
+    const handleConnect = () => {
+      setIsConnected(true);
+    };
+
+    const handleConnectError = () => {
+      setIsConnected(false);
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('connect_error', handleConnectError);
     socket.on('initial_canvas', handleInitialCanvas);
     socket.on('update_pixel', handleUpdatePixel);
     socket.on('login_success', handleLoginSuccess);
     socket.on('cooldown', handleCooldown);
 
     return () => {
+      socket.off('connect', handleConnect);
+      socket.off('connect_error', handleConnectError);
       socket.off('initial_canvas', handleInitialCanvas);
       socket.off('update_pixel', handleUpdatePixel);
-      socket.off('login_failed'); // No specific handler, so just off by event name
-      socket.off('signup_failed'); // No specific handler, so just off by event name
       socket.off('cooldown', handleCooldown);
       if (cooldownInterval) {
         clearInterval(cooldownInterval);

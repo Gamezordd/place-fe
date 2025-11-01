@@ -15,6 +15,7 @@ interface StoreState {
   cooldown: number;
   selectedColor: string;
   initialized: boolean;
+  isConnected: boolean;
   setCanvas: (canvas: Canvas) => void;
   setUsername: (username: string | null) => void;
   setCooldown: (cooldown: number) => void;
@@ -24,6 +25,7 @@ interface StoreState {
   isShaking: boolean;
   setIsShaking: (isShaking: boolean) => void;
   setInitialized: (initialized: boolean) => void;
+  setIsConnected: (isConnected: boolean) => void;
 }
 
 const useStore = create<StoreState>((set) => ({
@@ -32,6 +34,7 @@ const useStore = create<StoreState>((set) => ({
   cooldown: 0,
   selectedColor: '#FFFFFF',
   initialized: false,
+  isConnected: true,
   setCanvas: (canvas) => set({ canvas }),
   setUsername: (username) => set({ username }),
   setCooldown: (cooldown) => set({ cooldown }),
@@ -47,6 +50,7 @@ const useStore = create<StoreState>((set) => ({
   isShaking: false,
   setIsShaking: (isShaking) => set({ isShaking }),
   setInitialized: (initialized) => set({ initialized }),
+  setIsConnected: (isConnected) => set({ isConnected }),
 }));
 
 export default useStore;

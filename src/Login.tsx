@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { socket } from './SocketManager';
 import useStore from './store';
+import InputFieldWithErrors from './Components/InputFieldWithErrors';
 
 const Login = () => {
   const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
   const { setUsername: setStoreUsername } = useStore();
 
   const handleLogin = () => {
@@ -15,10 +17,16 @@ const Login = () => {
       setStoreUsername(username);
     };
 
+    const handleLoginError = (message: string) => {
+      setError(message);
+    };
+
     socket.on('login_success', handleLoginSuccess);
+    socket.on('login_failed', handleLoginError);
 
     return () => {
       socket.off('login_success', handleLoginSuccess);
+      socket.off('login_failed', handleLoginError);
     };
   }, [username, setStoreUsername]);
 
@@ -27,12 +35,16 @@ const Login = () => {
       <h1 className="text-3xl font-bold mb-2 text-center">Reddit Place Clone</h1>
       <p className="text-gray-400 mb-6 text-center">Collaborate with others to create a masterpiece on a shared canvas.</p>
       <div className="flex flex-col space-y-4">
-        <input
-          type="text"
+        <InputFieldWithErrors
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="px-4 py-3 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleLogin();
+            }
+          }}
+          error={error}
         />
         <button
           onClick={handleLogin}

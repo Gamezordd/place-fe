@@ -7,11 +7,16 @@ import Login from './Login';
 import Signup from './Signup';
 import useStore from './store';
 import Toolbar from './Toolbar';
+import ConnectionError from './ConnectionError';
 
 
 function App() {
-  const { username } = useStore();
+  const { username, isConnected } = useStore();
   const [showLogin, setShowLogin] = useState(true);
+
+  if (!isConnected) {
+    return <ConnectionError />;
+  }
 
   return (
     <div className="text-white min-h-screen flex flex-col w-full">
