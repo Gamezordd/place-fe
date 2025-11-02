@@ -1,5 +1,3 @@
-import React from "react";
-
 const ConnectionError = () => {
   return (
     <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-lg">
