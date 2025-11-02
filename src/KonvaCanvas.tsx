@@ -23,23 +23,6 @@ const KonvaCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 });
-  const lastDist = useRef(0);
-  const [pointers, setPointers] = useState<PointerEvent[]>([]);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const resizeObserver = new ResizeObserver(() => {
-        if (containerRef.current) {
-          setDimensions({
-            width: containerRef.current.offsetWidth - 16,
-            height: containerRef.current.offsetHeight - 16,
-          });
-        }
-      });
-      resizeObserver.observe(containerRef.current);
-      return () => resizeObserver.disconnect();
-    }
-  }, []);
 
   const pixelSize = Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
 
@@ -57,6 +40,21 @@ const KonvaCanvas = () => {
       }
     }
   }, [initialized, canvas]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const resizeObserver = new ResizeObserver(() => {
+        if (containerRef.current) {
+          setDimensions({
+            width: containerRef.current.offsetWidth - 16,
+            height: containerRef.current.offsetHeight - 16,
+          });
+        }
+      });
+      resizeObserver.observe(containerRef.current);
+      return () => resizeObserver.disconnect();
+    }
+  }, []);
 
   const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
@@ -80,77 +78,7 @@ const KonvaCanvas = () => {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     });
-  };
-
-  const handlePointerDown = (e: KonvaEventObject<PointerEvent>) => {
-    setPointers((prev) => [...prev, e.evt]);
-  };
-
-  const handlePointerUp = (e: KonvaEventObject<PointerEvent>) => {
-    setPointers((prev) => prev.filter((p) => p.pointerId !== e.evt.pointerId));
-    lastDist.current = 0;
-  };
-
-  const handlePointerMove = (e: KonvaEventObject<PointerEvent>) => {
-    const stage = e.target.getStage() as StageType;
-    const newPointers = pointers.map((p) =>
-      p.pointerId === e.evt.pointerId ? e.evt : p,
-    );
-    setPointers(newPointers);
-
-    if (newPointers.length === 2) {
-      if (stage.isDragging()) {
-        stage.stopDrag();
-      }
-
-      const p1 = {
-        x: newPointers[0].clientX,
-        y: newPointers[0].clientY,
-      };
-
-      const p2 = {
-        x: newPointers[1].clientX,
-        y: newPointers[1].clientY,
-      };
-
-      if (!lastDist.current) {
-        lastDist.current = getDistance(p1, p2);
-      }
-
-      const dist = getDistance(p1, p2);
-      const scale = (stage.scaleX() * dist) / lastDist.current;
-      lastDist.current = dist;
-
-      const center = {
-        x: (p1.x + p2.x) / 2,
-        y: (p1.y + p2.y) / 2,
-      };
-
-      const pointTo = {
-        x: (center.x - stage.x()) / stage.scaleX(),
-        y: (center.y - stage.y()) / stage.scaleX(),
-      };
-
-      setStage({
-        scale,
-        x: center.x - pointTo.x * scale,
-        y: center.y - pointTo.y * scale,
-      });
-    } else if (newPointers.length === 1) {
-      if (!stage.isDragging()) {
-        stage.startDrag();
-      }
-    }
-  };
-
-  const getDistance = (
-    p1: { x: number; y: number },
-    p2: { x: number; y: number },
-  ) => {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-  };
-
-  /**
+  };  /**
    * Handle a click on a pixel.
    * If the user is not logged in, show an alert.
    * If the cooldown is not over, shake the pixel and then restore its color.
@@ -194,14 +122,11 @@ const KonvaCanvas = () => {
       <Stage
         width={dimensions.width}
         height={dimensions.height}
-        onWheel={handleWheel}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerMove={handlePointerMove}
         scaleX={stage.scale}
         scaleY={stage.scale}
         x={stage.x}
         y={stage.y}
+        onWheel={handleWheel}
         draggable
       >
         <Layer ref={layerRef}>
@@ -223,6 +148,7 @@ const KonvaCanvas = () => {
                     height={pixelSize}
                     fill={pixel ? pixel.color : "#FFFFFF"}
                     onClick={handlePixelClick}
+                    onTap={handlePixelClick}
                     stroke="#CCCCCC"
                     strokeWidth={0.5}
                   />
@@ -234,6 +160,18 @@ const KonvaCanvas = () => {
       </Stage>
     </div>
   );
+};
+
+const getDistance = (
+  p1: PointerEvent | { x: number; y: number },
+  p2: PointerEvent | { x: number; y: number },
+) => {
+  const x1 = "clientX" in p1 ? p1.clientX : p1.x;
+  const y1 = "clientY" in p1 ? p1.clientY : p1.y;
+  const x2 = "clientX" in p2 ? p2.clientX : p2.x;
+  const y2 = "clientY" in p2 ? p2.clientY : p2.y;
+
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 };
 
 export default KonvaCanvas;
