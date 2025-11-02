@@ -104,7 +104,7 @@ const KonvaCanvas = () => {
     let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
     newScale = Math.max(newScale, minScale);
 
-    setStage((prevStage) => ({
+    setStage(() => ({
       scale: newScale,
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
