@@ -30,8 +30,21 @@ const KonvaCanvas = () => {
     return Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
   }, [dimensions.width, dimensions.height]);
 
+  const minScale = useMemo(() => {
+    if (dimensions.width === 0 || dimensions.height === 0) return 1;
+    const scaleX = dimensions.width / (CANVAS_SIZE * pixelSize);
+    const scaleY = dimensions.height / (CANVAS_SIZE * pixelSize);
+    return Math.min(scaleX, scaleY);
+  }, [dimensions.width, dimensions.height, pixelSize]);
+
+  useEffect(() => {
+    if (stage.scale < minScale) {
+      setStage((prevStage) => ({ ...prevStage, scale: minScale }));
+    }
+  }, [minScale, stage.scale]);
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newScale = parseFloat(e.target.value);
+    const newScale = Math.max(parseFloat(e.target.value), minScale);
     setStage((prevStage) => ({ ...prevStage, scale: newScale }));
     setIsSliderActive(true);
 
@@ -88,14 +101,15 @@ const KonvaCanvas = () => {
       y: (pointer.y - stage.y) / oldScale,
     };
 
-    const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+    let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+    newScale = Math.max(newScale, minScale);
 
     setStage((prevStage) => ({
       scale: newScale,
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     }));
-  }, []);
+  }, [minScale]);
 
   /**
    * Handle a click on a pixel.
@@ -195,7 +209,7 @@ const KonvaCanvas = () => {
       </Stage>
       <input
         type="range"
-        min="1"
+        min={minScale}
         max="10"
         step="0.5"
         value={stage.scale}
