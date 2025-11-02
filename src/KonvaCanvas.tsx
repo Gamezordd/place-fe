@@ -24,6 +24,7 @@ const KonvaCanvas = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 });
   const lastDist = useRef(0);
+  const [pointers, setPointers] = useState<PointerEvent[]>([]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -135,6 +136,67 @@ const KonvaCanvas = () => {
     lastDist.current = 0;
   };
 
+  const handlePointerDown = (e: KonvaEventObject<PointerEvent>) => {
+    setPointers((prev) => [...prev, e.evt]);
+  };
+
+  const handlePointerUp = (e: KonvaEventObject<PointerEvent>) => {
+    setPointers((prev) => prev.filter((p) => p.pointerId !== e.evt.pointerId));
+    lastDist.current = 0;
+  };
+
+  const handlePointerMove = (e: KonvaEventObject<PointerEvent>) => {
+    const stage = e.target.getStage() as StageType;
+    const newPointers = pointers.map((p) =>
+      p.pointerId === e.evt.pointerId ? e.evt : p,
+    );
+    setPointers(newPointers);
+
+    if (newPointers.length === 2) {
+      if (stage.isDragging()) {
+        stage.stopDrag();
+      }
+
+      const p1 = {
+        x: newPointers[0].clientX,
+        y: newPointers[0].clientY,
+      };
+
+      const p2 = {
+        x: newPointers[1].clientX,
+        y: newPointers[1].clientY,
+      };
+
+      if (!lastDist.current) {
+        lastDist.current = getDistance(p1, p2);
+      }
+
+      const dist = getDistance(p1, p2);
+      const scale = (stage.scaleX() * dist) / lastDist.current;
+      lastDist.current = dist;
+
+      const center = {
+        x: (p1.x + p2.x) / 2,
+        y: (p1.y + p2.y) / 2,
+      };
+
+      const pointTo = {
+        x: (center.x - stage.x()) / stage.scaleX(),
+        y: (center.y - stage.y()) / stage.scaleX(),
+      };
+
+      setStage({
+        scale,
+        x: center.x - pointTo.x * scale,
+        y: center.y - pointTo.y * scale,
+      });
+    } else if (newPointers.length === 1) {
+      if (!stage.isDragging()) {
+        stage.startDrag();
+      }
+    }
+  };
+
   const getDistance = (
     p1: { x: number; y: number },
     p2: { x: number; y: number },
@@ -187,8 +249,9 @@ const KonvaCanvas = () => {
         width={dimensions.width}
         height={dimensions.height}
         onWheel={handleWheel}
-        onTouchMove={handleTouch}
-        onTouchEnd={handleTouchEnd}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
         scaleX={stage.scale}
         scaleY={stage.scale}
         x={stage.x}
