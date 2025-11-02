@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import useStore from "./store";
 import { EVENT_NAMES } from "./eventConstants";
 
-const socket = io("localhost:3000"); // Replace with your backend URL
+const socket = io(import.meta.env.VITE_API_URL); // Replace with your backend URL
 
 // Store the interval ID outside the component to ensure it's persistent
 let cooldownInterval: number | null = null;
@@ -39,7 +39,6 @@ const SocketManager = () => {
     };
 
     const handleCooldown = (cooldown: number) => {
-      console.log("current cooldown:", cooldown);
       setCooldown(cooldown);
 
       // Clear any existing interval

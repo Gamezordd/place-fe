@@ -60,8 +60,6 @@ const useStore = create<StoreState>((set) => ({
       const response = await fetch(import.meta.env.VITE_API_URL + "/health");
         if (response) {
           set({ isLoading: false });
-        } else {
-          setTimeout(doCheck, 3000);
         }
       } catch (error) {
         console.error("Health check failed:", error);
