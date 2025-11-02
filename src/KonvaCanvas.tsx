@@ -1,7 +1,7 @@
 import { Stage, Layer, Rect, Group } from "react-konva";
 import useStore from "./store";
 import { socket } from "./SocketManager";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
 import type { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
@@ -23,8 +23,25 @@ const KonvaCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 });
+  const [isSliderActive, setIsSliderActive] = useState(false);
+  const sliderTimeoutRef = useRef<any | null>(null);
 
-  const pixelSize = Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
+  const pixelSize = useMemo(() => {
+    return Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
+  }, [dimensions.width, dimensions.height]);
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newScale = parseFloat(e.target.value);
+    setStage((prevStage) => ({ ...prevStage, scale: newScale }));
+    setIsSliderActive(true);
+
+    if (sliderTimeoutRef.current) {
+      clearTimeout(sliderTimeoutRef.current);
+    }
+    sliderTimeoutRef.current = setTimeout(() => {
+      setIsSliderActive(false);
+    }, 800);
+  };
 
   useEffect(() => {
     if (layerRef.current && !initialized) {
@@ -47,7 +64,7 @@ const KonvaCanvas = () => {
         if (containerRef.current) {
           setDimensions({
             width: containerRef.current.offsetWidth - 16,
-            height: containerRef.current.offsetHeight - 16,
+            height: containerRef.current.offsetWidth - 16,
           });
         }
       });
@@ -56,36 +73,38 @@ const KonvaCanvas = () => {
     }
   }, []);
 
-  const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
+  const handleWheel = useCallback((e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
 
     const scaleBy = 1.1;
-    const stage = e.target.getStage() as StageType;
-    const oldScale = stage.scaleX();
-    const pointer = stage.getPointerPosition();
+    const stageKonva = e.target.getStage() as StageType;
+    const oldScale = stageKonva.scaleX();
+    const pointer = stageKonva.getPointerPosition();
 
     if (!pointer) return;
 
     const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
+      x: (pointer.x - stage.x) / oldScale,
+      y: (pointer.y - stage.y) / oldScale,
     };
 
     const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
 
-    setStage({
+    setStage((prevStage) => ({
       scale: newScale,
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
-    });
-  };  /**
+    }));
+  }, []);
+
+  /**
    * Handle a click on a pixel.
    * If the user is not logged in, show an alert.
    * If the cooldown is not over, shake the pixel and then restore its color.
    * If the cooldown is over, send a draw_pixel event to the server and update the pixel's color.
    * @param {KonvaEventObject<MouseEvent>} e - The event object.
    */
-  const handlePixelClick = (e: KonvaEventObject<MouseEvent>) => {
+  const handlePixelClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
     const rect = e.target as Shape;
     const x = rect.x() / pixelSize;
     const y = rect.y() / pixelSize;
@@ -112,7 +131,20 @@ const KonvaCanvas = () => {
 
     socket.emit("draw_pixel", { x, y, color: selectedColor, timestamp });
     updatePixel(x, y, selectedColor, timestamp);
-  };
+  }, [username, cooldown, canvas, selectedColor, pixelSize, setIsShaking, updatePixel]);
+
+  const dragBoundFunc = useCallback((pos: { x: number; y: number }) => {
+    const scale = stage.scale;
+    const stageWidth = dimensions.width;
+    const stageHeight = dimensions.height;
+    const canvasRenderedWidth = CANVAS_SIZE * pixelSize * scale;
+    const canvasRenderedHeight = CANVAS_SIZE * pixelSize * scale;
+
+    const x = Math.max(pos.x, stageWidth - canvasRenderedWidth);
+    const y = Math.max(pos.y, stageHeight - canvasRenderedHeight);
+
+    return { x: Math.min(x, 0), y: Math.min(y, 0) };
+  }, [dimensions.width, dimensions.height, stage.scale, pixelSize]);
 
   return (
     <div
@@ -128,36 +160,70 @@ const KonvaCanvas = () => {
         y={stage.y}
         onWheel={handleWheel}
         draggable
+        dragBoundFunc={dragBoundFunc}
       >
         <Layer ref={layerRef}>
           <Rect x={0} y={0} fill="#FFFFFF" />
           <Group>
-            {Array.from({ length: CANVAS_SIZE * CANVAS_SIZE }).map(
-              (_, index) => {
-                const x = index % CANVAS_SIZE;
-                const y = Math.floor(index / CANVAS_SIZE);
-                const pixel = canvas[`${x}:${y}`];
+            {useMemo(() => (
+              Array.from({ length: CANVAS_SIZE * CANVAS_SIZE }).map(
+                (_, index) => {
+                  const x = index % CANVAS_SIZE;
+                  const y = Math.floor(index / CANVAS_SIZE);
+                  const pixel = canvas[`${x}:${y}`];
 
-                return (
-                  <Rect
-                    key={index}
-                    id={`pixel-${x}-${y}`}
-                    x={x * pixelSize}
-                    y={y * pixelSize}
-                    width={pixelSize}
-                    height={pixelSize}
-                    fill={pixel ? pixel.color : "#FFFFFF"}
-                    onClick={handlePixelClick}
-                    onTap={handlePixelClick}
-                    stroke="#CCCCCC"
-                    strokeWidth={0.5}
-                  />
-                );
-              },
-            )}
+                  return (
+                    <Rect
+                      key={index}
+                      id={`pixel-${x}-${y}`}
+                      x={x * pixelSize}
+                      y={y * pixelSize}
+                      width={pixelSize}
+                      height={pixelSize}
+                      fill={pixel ? pixel.color : "#FFFFFF"}
+                      onClick={handlePixelClick}
+                      onTap={handlePixelClick}
+                      stroke="#CCCCCC"
+                      strokeWidth={0.5}
+                    />
+                  );
+                },
+              )
+            ), [canvas, pixelSize, handlePixelClick])}
           </Group>
         </Layer>
       </Stage>
+      <input
+        type="range"
+        min="1"
+        max="10"
+        step="0.5"
+        value={stage.scale}
+        onChange={handleSliderChange}
+        onMouseDown={() => {
+          setIsSliderActive(true);
+          if (sliderTimeoutRef.current) {
+            clearTimeout(sliderTimeoutRef.current);
+          }
+        }}
+        onTouchStart={() => {
+          setIsSliderActive(true);
+          if (sliderTimeoutRef.current) {
+            clearTimeout(sliderTimeoutRef.current);
+          }
+        }}
+        onMouseUp={() => {
+          sliderTimeoutRef.current = setTimeout(() => {
+            setIsSliderActive(false);
+          }, 800);
+        }}
+        onTouchEnd={() => {
+          sliderTimeoutRef.current = setTimeout(() => {
+            setIsSliderActive(false);
+          }, 800);
+        }}
+        className={`absolute bottom-4 left-1/2 -translate-x-1/2 w-1/2 md:hidden transition-opacity duration-500 ${isSliderActive ? 'opacity-100' : 'opacity-50'}`}
+      />
     </div>
   );
 };
