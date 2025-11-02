@@ -82,60 +82,6 @@ const KonvaCanvas = () => {
     });
   };
 
-  const handleTouch = (e: KonvaEventObject<TouchEvent>) => {
-    e.evt.preventDefault();
-    const touch1 = e.evt.touches[0];
-    const touch2 = e.evt.touches[1];
-    const stage = e.target.getStage() as StageType;
-
-    if (touch1 && touch2) {
-      if (stage.isDragging()) {
-        stage.stopDrag();
-      }
-
-      const p1 = {
-        x: touch1.clientX,
-        y: touch1.clientY,
-      };
-      const p2 = {
-        x: touch2.clientX,
-        y: touch2.clientY,
-      };
-
-      if (!lastDist.current) {
-        lastDist.current = getDistance(p1, p2);
-      }
-
-      const dist = getDistance(p1, p2);
-      const scale = (stage.scaleX() * dist) / lastDist.current;
-      lastDist.current = dist;
-
-      const center = {
-        x: (p1.x + p2.x) / 2,
-        y: (p1.y + p2.y) / 2,
-      };
-
-      const pointTo = {
-        x: (center.x - stage.x()) / stage.scaleX(),
-        y: (center.y - stage.y()) / stage.scaleX(),
-      };
-
-      setStage({
-        scale,
-        x: center.x - pointTo.x * scale,
-        y: center.y - pointTo.y * scale,
-      });
-    } else if (touch1) {
-      if (!stage.isDragging()) {
-        stage.startDrag();
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    lastDist.current = 0;
-  };
-
   const handlePointerDown = (e: KonvaEventObject<PointerEvent>) => {
     setPointers((prev) => [...prev, e.evt]);
   };
