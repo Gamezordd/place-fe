@@ -1,4 +1,4 @@
-const ConnectionError = () => {
+const LoadingScreen = () => {
   return (
     <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900/50 backdrop-blur-lg z-50">
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl flex flex-col items-center space-y-4 border border-gray-700">
@@ -7,11 +7,11 @@ const ConnectionError = () => {
           Connecting to server...
         </h1>
         <p className="text-gray-400 text-center">
-          Attempting to re-establish connection...
+          Please wait while we establish a connection. This can take up to a minute.
         </p>
       </div>
     </div>
   );
 };
 
-export default ConnectionError;
+export default LoadingScreen;

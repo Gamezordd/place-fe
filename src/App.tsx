@@ -11,6 +11,8 @@ import Toolbar from "./Toolbar";
 import ConnectionError from "./ConnectionError";
 const KonvaCanvas = lazy(() => import("./KonvaCanvas"));
 
+import LoadingScreen from "./LoadingScreen";
+
 function App() {
   const { username, isConnected, isLoading, checkServerHealth } = useStore();
   console.log("API URL:", import.meta.env.VITE_API_URL);
@@ -21,11 +23,7 @@ function App() {
   const [showLogin, setShowLogin] = useState(true);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        <p>Connecting to server...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!isConnected) {
