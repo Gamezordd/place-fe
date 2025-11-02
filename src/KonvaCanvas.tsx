@@ -162,16 +162,4 @@ const KonvaCanvas = () => {
   );
 };
 
-const getDistance = (
-  p1: PointerEvent | { x: number; y: number },
-  p2: PointerEvent | { x: number; y: number },
-) => {
-  const x1 = "clientX" in p1 ? p1.clientX : p1.x;
-  const y1 = "clientY" in p1 ? p1.clientY : p1.y;
-  const x2 = "clientX" in p2 ? p2.clientX : p2.x;
-  const y2 = "clientY" in p2 ? p2.clientY : p2.y;
-
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-};
-
 export default KonvaCanvas;
