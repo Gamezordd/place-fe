@@ -7,7 +7,10 @@ const LoadingScreen = () => {
           Connecting to server...
         </h1>
         <p className="text-gray-400 text-center">
-          Please wait while we establish a connection. This can take up to a minute.
+          Please wait while we establish a connection.
+        </p>
+        <p className="text-gray-400 text-center">
+          This service runs on a free-tier server and sleeps after inactivity. It is booting up now, which may take up to a minute.
         </p>
       </div>
     </div>
