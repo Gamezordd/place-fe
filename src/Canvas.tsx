@@ -1,6 +1,6 @@
 import { useState } from "react";
 import useStore from "./store";
-import { socket } from "./useSocket";
+import { useSocket } from "./SocketContext";
 
 const CANVAS_SIZE = 50;
 
@@ -13,6 +13,10 @@ const Canvas = () => {
     cooldown,
     setIsShaking,
   } = useStore();
+  const socket = useSocket();
+
+  if(!socket) return null;
+  
   const [tempPixel, setTempPixel] = useState<{
     x: number;
     y: number;
