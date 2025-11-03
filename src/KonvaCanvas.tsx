@@ -1,6 +1,6 @@
 import { Stage, Layer, Rect, Group } from "react-konva";
 import useStore from "./store";
-import { socket } from "./SocketManager";
+import { socket } from "./useSocket";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
 import type { KonvaEventObject } from "konva/lib/Node";

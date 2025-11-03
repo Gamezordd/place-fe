@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { socket } from "./SocketManager";
+import { socket } from "./useSocket";
 import useStore from "./store";
 import InputFieldWithErrors from "./Components/InputFieldWithErrors";
 import { EVENT_NAMES } from "./eventConstants";

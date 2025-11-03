@@ -1,6 +1,6 @@
 import { useState } from "react";
 import useStore from "./store";
-import { socket } from "./SocketManager";
+import { socket } from "./useSocket";
 
 const CANVAS_SIZE = 50;
 

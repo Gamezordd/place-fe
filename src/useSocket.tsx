@@ -8,14 +8,32 @@ const socket = io(import.meta.env.VITE_API_URL); // Replace with your backend UR
 // Store the interval ID outside the component to ensure it's persistent
 let cooldownInterval: number | null = null;
 
-const SocketManager = () => {
+const useSocket = () => {
   const {
     setCanvas,
     updatePixel,
     setCooldown,
     setInitialized,
     setIsConnected,
+    checkServerHealth,
+    isConnected
   } = useStore();
+
+  useEffect(() => {
+    console.log("isConnected changed:", isConnected);
+    const reconnect = async () => {
+      const serverUp = await checkServerHealth();
+      console.log("serverUp:", serverUp);
+      if(serverUp && !isConnected) {
+        const {connected} = socket.connect();
+        if(connected) {
+          console.log("Socket reconnected");
+          setIsConnected(true);
+        }
+      }
+    }
+    reconnect();
+  }, [checkServerHealth, isConnected, socket]);
 
   useEffect(() => {
     // Define listeners outside to avoid re-creating them on every render
@@ -62,6 +80,7 @@ const SocketManager = () => {
 
     const handleConnect = () => {
       setIsConnected(true);
+      
     };
 
     const handleConnectError = () => {
@@ -91,4 +110,4 @@ const SocketManager = () => {
   return null;
 };
 
-export { socket, SocketManager };
+export { socket, useSocket };

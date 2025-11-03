@@ -27,7 +27,7 @@ interface StoreState {
   setIsShaking: (isShaking: boolean) => void;
   setInitialized: (initialized: boolean) => void;
   setIsConnected: (isConnected: boolean) => void;
-  checkServerHealth: () => Promise<void>;
+  checkServerHealth: () => Promise<true | undefined>;
 }
 
 const useStore = create<StoreState>((set) => ({
@@ -36,7 +36,7 @@ const useStore = create<StoreState>((set) => ({
   cooldown: 0,
   selectedColor: "#FFFFFF",
   initialized: false,
-  isConnected: true,
+  isConnected: false,
   isLoading: true,
   setCanvas: (canvas) => set({ canvas }),
   setUsername: (username) => set({ username }),
@@ -57,17 +57,17 @@ const useStore = create<StoreState>((set) => ({
   checkServerHealth: async () => {
     const doCheck = async () => {
       try {
-      const response = await fetch(import.meta.env.VITE_API_URL + "/health");
+        const response = await fetch(import.meta.env.VITE_API_URL + "/health");
         if (response) {
           set({ isLoading: false });
+          return true;
         }
       } catch (error) {
         console.error("Health check failed:", error);
-        setTimeout(doCheck, 3000);
+        setTimeout(doCheck, 10000);
       }
     };
     return doCheck();
   },
 }));
 export default useStore;
-

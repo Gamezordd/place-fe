@@ -1,7 +1,7 @@
 import Background from "./Background";
 import "./App.css";
-import { useState, useEffect } from "react";
-import { SocketManager } from "./SocketManager";
+import { useState } from "react";
+import { useSocket } from "./useSocket";
 import { lazy, Suspense } from "react";
 
 const Login = lazy(() => import("./Login"));
@@ -14,11 +14,9 @@ const KonvaCanvas = lazy(() => import("./KonvaCanvas"));
 import LoadingScreen from "./LoadingScreen";
 
 function App() {
-  const { username, isConnected, isLoading, checkServerHealth } = useStore();
-  console.log("API URL:", import.meta.env.VITE_API_URL);
-  useEffect(() => {
-    checkServerHealth();
-  }, [checkServerHealth]);
+  const { username, isConnected, isLoading } = useStore();
+
+  useSocket();
 
   const [showLogin, setShowLogin] = useState(true);
 
@@ -33,7 +31,6 @@ function App() {
   return (
     <div className="text-white min-h-screen flex flex-col w-full">
       <Background />
-      <SocketManager />
       {username && <Toolbar />}
       <div className={`relative w-full flex justify-center items-center `}>
         <Suspense fallback={<div>Loading Canvas...</div>}>
