@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { socket } from "./useSocket";
+import { useSocket } from "./SocketContext";
 import useStore from "./store";
 import InputFieldWithErrors from "./Components/InputFieldWithErrors";
 import { EVENT_NAMES } from "./eventConstants";
@@ -8,6 +9,9 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const { setUsername: setStoreUsername } = useStore();
+  const socket = useSocket();
+
+  if(!socket) return null;
 
   const handleLogin = () => {
     socket.emit(EVENT_NAMES.LOGIN, username);
@@ -29,7 +33,7 @@ const Login = () => {
       socket.off(EVENT_NAMES.LOGIN_SUCCESS, handleLoginSuccess);
       socket.off(EVENT_NAMES.LOGIN_FAILED, handleLoginError);
     };
-  }, [username, setStoreUsername]);
+  }, [username, setStoreUsername, socket]);
 
   return (
     <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
@@ -66,3 +70,4 @@ const Login = () => {
 };
 
 export default Login;
+

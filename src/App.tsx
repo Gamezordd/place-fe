@@ -1,14 +1,13 @@
+
 import Background from "./Background";
 import "./App.css";
 import { useState } from "react";
-import { useSocket } from "./useSocket";
 import { lazy, Suspense } from "react";
 
 const Login = lazy(() => import("./Login"));
 const Signup = lazy(() => import("./Signup"));
 import useStore from "./store";
 import Toolbar from "./Toolbar";
-import ConnectionError from "./ConnectionError";
 const KonvaCanvas = lazy(() => import("./KonvaCanvas"));
 
 import LoadingScreen from "./LoadingScreen";
@@ -16,16 +15,10 @@ import LoadingScreen from "./LoadingScreen";
 function App() {
   const { username, isConnected, isLoading } = useStore();
 
-  useSocket();
-
   const [showLogin, setShowLogin] = useState(true);
 
   if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!isConnected) {
-    return <ConnectionError />;
+    return <LoadingScreen socketLoading={!isConnected} />;
   }
 
   return (
@@ -59,3 +52,4 @@ function App() {
 }
 
 export default App;
+

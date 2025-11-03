@@ -1,6 +1,7 @@
+
 import { Stage, Layer, Rect, Group } from "react-konva";
 import useStore from "./store";
-import { socket } from "./useSocket";
+import { useSocket } from "./SocketContext";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
 import type { KonvaEventObject } from "konva/lib/Node";
@@ -25,6 +26,7 @@ const KonvaCanvas = () => {
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 });
   const [isSliderActive, setIsSliderActive] = useState(false);
   const sliderTimeoutRef = useRef<any | null>(null);
+  const socket = useSocket();
 
   const pixelSize = useMemo(() => {
     return Math.min(dimensions.width, dimensions.height) / CANVAS_SIZE;
@@ -85,6 +87,8 @@ const KonvaCanvas = () => {
       return () => resizeObserver.disconnect();
     }
   }, []);
+
+  if(!socket) return null;
 
   const handleWheel = useCallback((e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
@@ -159,6 +163,7 @@ const KonvaCanvas = () => {
 
     return { x: Math.min(x, 0), y: Math.min(y, 0) };
   }, [dimensions.width, dimensions.height, stage.scale, pixelSize]);
+
 
   return (
     <div
@@ -243,3 +248,4 @@ const KonvaCanvas = () => {
 };
 
 export default KonvaCanvas;
+

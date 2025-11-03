@@ -1,14 +1,13 @@
-import { useEffect } from "react";
-import io from "socket.io-client";
+
+import { useEffect, useMemo } from "react";
 import useStore from "./store";
 import { EVENT_NAMES } from "./eventConstants";
-
-const socket = io(import.meta.env.VITE_API_URL); // Replace with your backend URL
+import { io } from "socket.io-client";
 
 // Store the interval ID outside the component to ensure it's persistent
 let cooldownInterval: number | null = null;
 
-const useSocket = () => {
+const useSocketConnection = () => {
   const {
     setCanvas,
     updatePixel,
@@ -16,24 +15,39 @@ const useSocket = () => {
     setInitialized,
     setIsConnected,
     checkServerHealth,
-    isConnected
+    isConnected,
+    isLoading
   } = useStore();
 
+    const socket = useMemo(() => {
+    const newSocket = io(import.meta.env.VITE_API_URL, {
+      autoConnect: false,
+    });
+    return newSocket;
+  }, []);
+
   useEffect(() => {
-    console.log("isConnected changed:", isConnected);
+    return () => {
+      console.log("SocketProvider disconnecting socket");
+      socket.disconnect();
+    }
+  }, [socket]);
+
+  useEffect(() => {
     const reconnect = async () => {
       const serverUp = await checkServerHealth();
-      console.log("serverUp:", serverUp);
-      if(serverUp && !isConnected) {
-        const {connected} = socket.connect();
-        if(connected) {
+      if (serverUp && !isConnected && socket) {
+        const { connected } = socket.connect();
+        if (connected) {
           console.log("Socket reconnected");
           setIsConnected(true);
         }
       }
+    };
+    if(!isLoading){
+      reconnect();
     }
-    reconnect();
-  }, [checkServerHealth, isConnected, socket]);
+  }, [socket, isConnected, isLoading, checkServerHealth, setIsConnected]);
 
   useEffect(() => {
     // Define listeners outside to avoid re-creating them on every render
@@ -80,12 +94,13 @@ const useSocket = () => {
 
     const handleConnect = () => {
       setIsConnected(true);
-      
     };
 
     const handleConnectError = () => {
       setIsConnected(false);
     };
+
+    if(!socket) return;
 
     socket.on(EVENT_NAMES.CONNECT, handleConnect);
     socket.on(EVENT_NAMES.CONNECT_ERROR, handleConnectError);
@@ -105,9 +120,10 @@ const useSocket = () => {
         cooldownInterval = null;
       }
     };
-  }, []); // Empty dependency array to run effect only once
+  }, [socket]);
 
-  return null;
+  return socket;
 };
 
-export { socket, useSocket };
+export default useSocketConnection;
+

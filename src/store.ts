@@ -37,7 +37,7 @@ const useStore = create<StoreState>((set) => ({
   selectedColor: "#FFFFFF",
   initialized: false,
   isConnected: false,
-  isLoading: true,
+  isLoading: false,
   setCanvas: (canvas) => set({ canvas }),
   setUsername: (username) => set({ username }),
   setCooldown: (cooldown) => set({ cooldown }),
