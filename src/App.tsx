@@ -17,7 +17,7 @@ function App() {
 
   const [showLogin, setShowLogin] = useState(true);
 
-  if (isLoading) {
+  if (isLoading || !isConnected) {
     return <LoadingScreen socketLoading={!isConnected} />;
   }
 

@@ -44,7 +44,7 @@ const useSocketConnection = () => {
         }
       }
     };
-    if(!isLoading){
+    if(!isLoading && socket){
       reconnect();
     }
   }, [socket, isConnected, isLoading, checkServerHealth, setIsConnected]);
