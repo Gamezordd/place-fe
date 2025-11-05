@@ -44,9 +44,7 @@ const useSocketConnection = () => {
         }
       }
     };
-    if(!isLoading && socket){
-      reconnect();
-    }
+    reconnect();
   }, [socket, isConnected, isLoading, checkServerHealth, setIsConnected]);
 
   useEffect(() => {
