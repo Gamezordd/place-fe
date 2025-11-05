@@ -37,7 +37,7 @@ const useStore = create<StoreState>((set) => ({
   selectedColor: "#FFFFFF",
   initialized: false,
   isConnected: false,
-  isLoading: false,
+  isLoading: true,
   setCanvas: (canvas) => set({ canvas }),
   setUsername: (username) => set({ username }),
   setCooldown: (cooldown) => set({ cooldown }),
@@ -57,7 +57,6 @@ const useStore = create<StoreState>((set) => ({
   checkServerHealth: async () => {
     const doCheck = async () => {
       try {
-        set({ isLoading: true });
         const response = await fetch(import.meta.env.VITE_API_URL + "/health");
         if (response) {
           set({ isLoading: false });
