@@ -38,7 +38,7 @@ const Login = () => {
   return (
     <div className="p-6 bg-gray-800 rounded-lg shadow-xl">
       <h1 className="text-3xl font-bold mb-2 text-center">
-        Reddit Place Clone
+        OpenCanvas 🌎
       </h1>
       <p className="text-gray-400 mb-6 text-center">
         Collaborate with others to create a masterpiece on a shared canvas.
