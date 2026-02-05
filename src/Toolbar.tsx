@@ -23,7 +23,7 @@ const Toolbar: React.FC = () => {
 
   return (
     <div className="bg-transparent text-white p-4 flex flex-col z-10">
-      <div className="w-full flex justify-between items-center mb-4">
+      <div className="w-full flex justify-between items-center mb-4 h-15 md:h-10">
         <div className={`font-mono text-lg ${isShaking ? "shake" : ""}`}>
           {preventActivity && !cooldown ? "Pixel Placed!" : cooldown > 0 ? `Cooldown: ${cooldown}s` : "Ready to place a pixel"}
         </div>
