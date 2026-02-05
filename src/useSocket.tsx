@@ -4,14 +4,13 @@ import useStore from "./store";
 import { EVENT_NAMES } from "./eventConstants";
 import { io } from "socket.io-client";
 
-// Store the interval ID outside the component to ensure it's persistent
-let cooldownInterval: number | null = null;
+
 
 const useSocketConnection = () => {
   const {
     setCanvas,
     updatePixel,
-    setCooldown,
+    handleCooldown,
     setInitialized,
     setIsConnected,
     checkServerHealth,
@@ -68,28 +67,6 @@ const useSocketConnection = () => {
       // Backend now sends 'cooldown' event directly after login
     };
 
-    const handleCooldown = (cooldown: number) => {
-      setCooldown(cooldown);
-
-      // Clear any existing interval
-      if (cooldownInterval) {
-        clearInterval(cooldownInterval);
-      }
-
-      if (cooldown > 0) {
-        cooldownInterval = setInterval(() => {
-          const currentCooldown = useStore.getState().cooldown;
-          if (currentCooldown <= 1) {
-            clearInterval(cooldownInterval!); // Clear the interval when cooldown ends
-            cooldownInterval = null;
-            setCooldown(0);
-          } else {
-            setCooldown(currentCooldown - 1);
-          }
-        }, 1000);
-      }
-    };
-
     const handleConnect = () => {
       setIsConnected(true);
     };
@@ -113,10 +90,6 @@ const useSocketConnection = () => {
       socket.off(EVENT_NAMES.INITIAL_CANVAS, handleInitialCanvas);
       socket.off(EVENT_NAMES.UPDATE_PIXEL, handleUpdatePixel);
       socket.off(EVENT_NAMES.COOLDOWN, handleCooldown);
-      if (cooldownInterval) {
-        clearInterval(cooldownInterval);
-        cooldownInterval = null;
-      }
     };
   }, [socket]);
 

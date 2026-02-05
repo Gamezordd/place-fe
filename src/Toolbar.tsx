@@ -13,6 +13,7 @@ const colors = [
 const Toolbar: React.FC = () => {
   const {
     cooldown,
+    preventActivity,
     selectedColor,
     setSelectedColor,
     username,
@@ -24,7 +25,7 @@ const Toolbar: React.FC = () => {
     <div className="bg-transparent text-white p-4 flex flex-col z-10">
       <div className="w-full flex justify-between items-center mb-4">
         <div className={`font-mono text-lg ${isShaking ? "shake" : ""}`}>
-          {cooldown > 0 ? `Cooldown: ${cooldown}s` : "Ready to place a pixel"}
+          {preventActivity && !cooldown ? "Pixel Placed!" : cooldown > 0 ? `Cooldown: ${cooldown}s` : "Ready to place a pixel"}
         </div>
         <div className="flex items-center pl-4">
           <div className="text-lg font-semibold mr-4">{username}</div>
